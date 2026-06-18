@@ -4,6 +4,7 @@ import com.skills.hub.model.User;
 import com.skills.hub.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 /*
 =========================================================
@@ -23,51 +24,66 @@ public class UserController {
 
     @GetMapping("/register")
     public String showRegisterPage() {
-
         // =========================
         // TASK
         // =========================
         // STEP 1: Return register page
-
-        return null; // TODO: "register"
+        return "register";
     }
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user) {
-
         // =========================
-        //TASK
+        // TASK
         // =========================
         // STEP 1: call service.registerUser(user)
-        // STEP 2: if success → redirect to login
-        // STEP 3: else → stay on register page
+        User saved = userService.registerUser(user);
 
-        return null;
+        // STEP 2: if success → redirect to login
+        if (saved != null) {
+            return "redirect:/login";
+        }
+        // STEP 3: else → stay on register page
+        else {
+            return "register";
+        }
     }
 
     @GetMapping("/login")
     public String showLoginPage() {
-
         // STEP 1: return login page
-
-        return null; // TODO: "login"
+        return "login";
     }
 
     @PostMapping("/login")
     public String login(@RequestParam String email,
-                         @RequestParam String password) {
-
+                        @RequestParam String password,
+                        HttpSession session) {
         // =========================
         // PSEUDO CODE
         // =========================
         // STEP 1: call userService.login(email, password)
-        // STEP 2: if user != null → redirect /packs
-        // STEP 3: else → return login page again
+        User user = userService.login(email, password);
 
-        return null;
+        // STEP 2: if user != null → redirect /packs
+        if (user != null) {
+            session.setAttribute("loggedUser", user);
+            return "redirect:/packs";
+        }
+        // STEP 3: else → return login page again
+        else {
+            return "login";
+        }
     }
 
-	public UserService getUserService() {
-		return userService;
-	}
+    // logout endpoint
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
 }
