@@ -1,73 +1,53 @@
 package com.skills.hub.controller;
 
-import com.skills.hub.model.User;
-import com.skills.hub.service.UserService;
+import com.skills.hub.service.SubscriptionService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /*
 =========================================================
 WHAT IS THIS FILE?
-Handles user actions like register and login
+Handles subscription between user and skill pack
 =========================================================
 */
 
 @Controller
-public class UserController {
+public class SubscriptionController {
 
-    private final UserService userService;
+    private final SubscriptionService subscriptionService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public SubscriptionController(SubscriptionService subscriptionService) {
+        this.subscriptionService = subscriptionService;
     }
 
-    @GetMapping("/register")
-    public String showRegisterPage() {
-
+    @GetMapping("/subscribe")
+    public String subscribe(@RequestParam Long userId,
+                            @RequestParam Long packId) {
         // =========================
         // TASK
         // =========================
-        // STEP 1: Return register page
+        // STEP 1: call subscriptionService.subscribe(userId, packId)
+        subscriptionService.subscribe(userId, packId);
 
-        return null; // TODO: "register"
+        // STEP 2: redirect to subscriptions page
+        return "redirect:/subscriptions/" + userId;
     }
 
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user) {
-
+    @GetMapping("/subscriptions/{userId}")
+    public String viewSubscriptions(@PathVariable Long userId, Model model) {
         // =========================
-        //TASK
+        // TASK
         // =========================
-        // STEP 1: call service.registerUser(user)
-        // STEP 2: if success → redirect to login
-        // STEP 3: else → stay on register page
+        // STEP 1: list = subscriptionService.getUserSubscriptions(userId)
+        // STEP 2: model.addAttribute("subs", list)
+        model.addAttribute("subs", subscriptionService.getUserSubscriptions(userId));
 
-        return null;
+        // STEP 3: return subscriptions.jsp
+        return "subscriptions";
     }
 
-    @GetMapping("/login")
-    public String showLoginPage() {
-
-        // STEP 1: return login page
-
-        return null; // TODO: "login"
+    public SubscriptionService getSubscriptionService() {
+        return subscriptionService;
     }
-
-    @PostMapping("/login")
-    public String login(@RequestParam String email,
-                         @RequestParam String password) {
-
-        // =========================
-        // PSEUDO CODE
-        // =========================
-        // STEP 1: call userService.login(email, password)
-        // STEP 2: if user != null → redirect /packs
-        // STEP 3: else → return login page again
-
-        return null;
-    }
-
-	public UserService getUserService() {
-		return userService;
-	}
 }
